@@ -100,7 +100,6 @@ version.
 
 ## API status
 
-* Currently Objectify is failing 7 of 9 tests, with more tests yet to come
 * Objectify.fields is not yet supported
 * Adding nested objects after "[]" is not yet supported, but will be
   - If you're good with Regular Expressions, I would appreciate some help with this
