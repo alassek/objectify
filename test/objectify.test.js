@@ -35,8 +35,13 @@
             },
             "authorizations": ["1", "2", "3"]
           }
-        }
+        },
+        "Object structure is generated as expected"
       );
+    });
+
+    test('Multiple forms', function() {
+      same(Objectify.convert([form, form]), [formObj, formObj], "Multiple forms are processed correctly");
     });
   });
   
