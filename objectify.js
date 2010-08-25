@@ -9,7 +9,7 @@ var Objectify = (function () {
    *  - form (HTMLFormElement | Array): Form or Array of forms to be parsed
   **/
   function convert(form) {
-    if (Object.isArray(form)) form.each(function(f){ return convert(f); });
+    if (Object.isArray(form)) return form.each(function(f){ return convert(f); });
     if (!form instanceof HTMLFormElement) throw("Expected an HTMLFormElement, got " + typeof(form) + " instead.");
     
     var inputs = form.getElementsByTagName('input'),
@@ -18,9 +18,13 @@ var Objectify = (function () {
     
     // getElementsByTagName is using a more elemental form
     // of array that doesn't have Prototype's extensions
-    fields = $A(inputs, selects, textareas);
-
+    inputs = $A(inputs);
+    selects = $A(selects);
+    textareas = $A(textareas);
+    fields = fields.concat(inputs).concat(selects).concat(textareas);
+    
     fields = fields.map(getKeyValuePairs)
+                   .compact()
                    .reject(filterNames)
                    .map(stripWhiteSpace);
 
@@ -67,8 +71,8 @@ var Objectify = (function () {
    *  Also ignores "_method" parameter
   **/
   function filterNames (pair) {
-    var nameEmpty = (pair[0].length === 0),
-        methodParam = pair[0].match(/^_method$/);
+    var nameEmpty = (pair.length > 0 && pair[0].length === 0),
+        methodParam = /^_method$/.test(pair[0]);
     return nameEmpty || methodParam;
   }
 
@@ -86,7 +90,6 @@ var Objectify = (function () {
         isArrayValue = key.match(/\[\]$/);
 
     key.scan(/^[\[\]]*([^\[\]]+)\]*/, function(s){ namespace.push(s[1]); });
-    console.log("Namespace:", namespace);
 
     var k, p = params;
     do {
