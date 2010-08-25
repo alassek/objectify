@@ -86,6 +86,7 @@ var Objectify = (function () {
         isArrayValue = key.match(/\[\]$/);
 
     key.scan(/^[\[\]]*([^\[\]]+)\]*/, function(s){ namespace.push(s[1]); });
+    console.log("Namespace:", namespace);
 
     var k, p = params;
     do {
@@ -97,11 +98,11 @@ var Objectify = (function () {
     } while (namespace.length > 0);
     
     if (isArrayValue) {
-      k = k || [];
-      if (!Object.isArray(k)) throw("Expected array, got " + typeof(k) + " instead.");
-      k.push(value);
+      p[k] = p[k] || [];
+      if (!Object.isArray(p[k])) throw("Expected array, got " + typeof(p[k]) + " instead.");
+      p[k].push(value);
     } else {
-      k = value;
+      p[k] = value;
     }
   }
   
