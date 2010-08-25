@@ -15,7 +15,28 @@
       ok(formObj.person.address.city, 'Address has a city');
       ok(formObj.person.address.state, 'Address has a state');
       ok(formObj.person.address.zip, 'Address has a zip');
-      ok(formObj.person.authorizations, 'Authorizations object exists');      
+      ok(formObj.person.authorizations, 'Authorizations object exists');
+      ok(Object.isArray(formObj.person.authorizations), 'Authorizations is an array');
+    });
+    
+    test('Object structure', function() {
+      same(
+        formObj,
+        {
+          "person": {
+            "id": "1",
+            "name": "Joe Blow",
+            "email": "joe.blow@test.com",
+            "address": {
+              "street_address": "123 Somewhere St",
+              "city": "Omaha",
+              "state": "NE",
+              "zip": "68144"
+            },
+            "authorizations": ["1", "2", "3"]
+          }
+        }
+      );
     });
   });
   
