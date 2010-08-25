@@ -5,6 +5,8 @@ The reason for this is to decouple the value of a form serialization from its
 presentation to a user. Computers and People think about data in very different
 ways, and it simply doesn't make sense to make one dependent on the other.
 
+Objectify requires the Prototype Javascript framework.
+
 ## The Objectify Parameter Convention
 
 Objectify uses the HTTP parameter convention popularized by PHP & Ruby:
