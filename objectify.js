@@ -1,5 +1,5 @@
 
-var Objectify = (function () {
+var Objectify = (function (undefined) {
 
   var fields = [],
       obj = {};
@@ -71,6 +71,7 @@ var Objectify = (function () {
    *  Also ignores "_method" parameter
   **/
   function filterNames (pair) {
+    if (pair === undefined || pair.compact().length === 0) return true;
     var nameEmpty = (pair.length > 0 && pair[0].length === 0),
         methodParam = /^_method$/.test(pair[0]);
     return nameEmpty || methodParam;
