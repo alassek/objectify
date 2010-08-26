@@ -1,26 +1,21 @@
 
 var Objectify = (function (undefined) {
 
-  var fields = [],
-      obj = {};
-  
-  /**
-   *  Objectify.convert(form) -> Object | Array
-   *  - form (HTMLFormElement | Array): Form or Array of forms to be parsed
+  /** related to: convert
+   *  process(form) -> Object
+   *  - form (HTMLFormElement): Form to be parsed
   **/
-  function convert(form) {
-    if (Object.isArray(form)) return form.each(function(f){ return convert(f); });
+  function process (form) {
     if (!form instanceof HTMLFormElement) throw("Expected an HTMLFormElement, got " + typeof(form) + " instead.");
     
     var inputs = form.getElementsByTagName('input'),
         selects = form.getElementsByTagName('select'),
-        textareas = form.getElementsByTagName('textarea');
+        textareas = form.getElementsByTagName('textarea'),
+        fields = [], obj = {};
     
     // getElementsByTagName is using a more elemental form
     // of array that doesn't have Prototype's extensions
-    inputs = $A(inputs);
-    selects = $A(selects);
-    textareas = $A(textareas);
+    inputs = $A(inputs), selects = $A(selects), textareas = $A(textareas);
     fields = fields.concat(inputs).concat(selects).concat(textareas);
     
     fields = fields.map(getKeyValuePairs)
@@ -29,13 +24,13 @@ var Objectify = (function (undefined) {
                    .map(stripWhiteSpace);
 
     fields.each(function(field) {
-      normalizeParams(obj, field[0], field[1]);
+      normalizeParam(field[0], field[1], obj);
     });
     
     return obj;
   }
   
-  /** related to: convert
+  /** related to: process
    *  getKeyValuePairs(field) -> Array
    *  - field (Element): Form element to extract name/value from
   **/
@@ -50,7 +45,7 @@ var Objectify = (function (undefined) {
     }    
   }
   
-  /** related to: convert
+  /** related to: process
    *  stripWhiteSpace(pair)
    *  - pair (Array): Name/Value pair in Array
    *
@@ -63,7 +58,7 @@ var Objectify = (function (undefined) {
     ];
   }
   
-  /** related to: convert
+  /** related to: process
    *  filterNames(pair) -> Boolean
    *  - pair (Array): Name/Value pair in Array
    *
@@ -77,16 +72,16 @@ var Objectify = (function (undefined) {
     return nameEmpty || methodParam;
   }
 
-  /** related to: convert
-   *  normalizeParams(params, key, value) -> undefined
-   *  - params (Object): The data object being constructed
+  /** related to: process
+   *  normalizeParam(key, value, params) -> undefined
    *  - key (String): The parameter name to be parsed
    *  - value (String): The value to be assigned
+   *  - params (Object): The data object being constructed
    *
    *  Takes a single key/value pair and assigns the value to the
    *  correct object according to the key's value.
   **/
-  function normalizeParams(params, key, value) {
+  function normalizeParam(key, value, params) {
     var namespace = [],
         isArrayValue = key.match(/\[\]$/);
 
@@ -111,7 +106,20 @@ var Objectify = (function (undefined) {
   }
   
   return {
-    convert: convert
+    
+    /**
+     *  Objectify.convert(forms) -> Object | Array
+     *  - forms (HTMLFormElement | Array): Form or Array of forms to be parsed
+    **/
+    convert: function (forms) {
+      if (Object.isArray(forms)) {
+        return forms.each(function (form) {
+          return process(form);
+        });
+      }
+      return process(forms);
+    }
+
   };
   
 })();
