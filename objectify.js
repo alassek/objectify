@@ -1,5 +1,7 @@
 
 var Objectify = (function (undefined) {
+  
+  var filters = {};
 
   /** related to: convert
    *  process(form) -> Object
@@ -118,6 +120,11 @@ var Objectify = (function (undefined) {
         });
       }
       return process(forms);
+    },
+    
+    fields: function (options) {
+      jQuery.extend(filters, options);
+      console.log(filters);
     }
 
   };
