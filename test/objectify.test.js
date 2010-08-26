@@ -1,29 +1,30 @@
 (function($, undefined) {
-  
-  $(document).ready(function(){
+
+  $(document).ready(function () {
+    
     module('Objectify.convert');
 
-    var form = $('form#person-fixture').get(0),
-        formObj = Objectify.convert(form);
-    
+    var personForm = $('#person-fixture').get(0),
+        personObj = Objectify.convert(personForm);
+  
     test('Object definitions', function() {
-      ok(formObj.person, 'Person object exists');
-      ok(formObj.person.name, 'Person has a name');
-      ok(formObj.person.email, 'Person has an email');
-      ok(formObj.person.address, 'Person has an Address');
-      ok(formObj.person.address.street_address, 'Address has a street_address');
-      ok(formObj.person.address.city, 'Address has a city');
-      ok(formObj.person.address.state, 'Address has a state');
-      ok(formObj.person.address.zip, 'Address has a zip');
-      ok(formObj.person.authorizations, 'Authorizations object exists');
-      ok(Object.isArray(formObj.person.authorizations), 'Authorizations is an array');
+      ok(personObj.person, 'Person object exists');
+      ok(personObj.person.name, 'Person has a name');
+      ok(personObj.person.email, 'Person has an email');
+      ok(personObj.person.address, 'Person has an Address');
+      ok(personObj.person.address.street_address, 'Address has a street_address');
+      ok(personObj.person.address.city, 'Address has a city');
+      ok(personObj.person.address.state, 'Address has a state');
+      ok(personObj.person.address.zip, 'Address has a zip');
+      ok(personObj.person.authorizations, 'Authorizations object exists');
+      ok(Object.isArray(personObj.person.authorizations), 'Authorizations is an array');
     });
-    
+  
     test('_method parameter is ignored', function () {
-      equal(formObj['_method'], undefined, "_method parameter is not added to object");
+      equal(personObj['_method'], undefined, "_method parameter is not added to object");
     });
 
-    var fixtureObj = {
+    var personFixture = {
       "person": {
         "id": "1",
         "name": "Joe Blow",
@@ -37,44 +38,45 @@
         "authorizations": ["1", "2", "3"]
       }
     };
-    
+  
     test('Object structure', function() {
       same(
-        formObj,
-        fixtureObj,
+        personObj,
+        personFixture,
         "Object structure is generated as expected"
       );
     });
-    
+  
     module('Objectify.fields');
-    
+  
     Objectify.fields({
       id: Number,
       "person[authorizations][]": Number
     });
-    
+  
     // testing if field filters are persistent and additive
     Objectify.fields({
       "person[address][zip]": function (zip) {
         return zip + "-1234";
       }
     })
-    
-    formObj = Objectify.convert($('form#filters-fixture').get(0));
-    
+  
+    var filtersObj = Objectify.convert($('form#filters-fixture').get(0));
+  
     test('User-provided field filters are applied', function () {
-      ok(formObj.person.id instanceof Number, "id was converted to Number");
-      equal(formObj.person.authorizations, [1, 2, 3], "authorizations were converted to Numbers");
-      equal(formObj.person.address.zip, "68144-1234", "zip was passed through provided function");
+      ok(filtersObj.person.id instanceof Number, "id was converted to Number");
+      equal(filtersObj.person.authorizations, [1, 2, 3], "authorizations were converted to Numbers");
+      equal(filtersObj.person.address.zip, "68144-1234", "zip was passed through provided function");
     });
-    
+  
     Objectify.fields({
       zip: Number
     });
 
     test('Exact field matches take precedence over general matches', function () {
-      ok(formObj.person.address.zip === "68144-1234", "person[address][zip] overrides zip filter");
+      ok(filtersObj.person.address.zip === "68144-1234", "person[address][zip] overrides zip filter");
     });
+  
   });
   
 })(jQuery);
