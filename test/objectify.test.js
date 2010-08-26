@@ -51,30 +51,47 @@
   
     Objectify.fields({
       id: Number,
-      "person[authorizations][]": Number
+      "something[id]": String
     });
   
     // testing if field filters are persistent and additive
     Objectify.fields({
-      "person[address][zip]": function (zip) {
+      zip: function (zip) {
         return zip + "-1234";
-      }
-    })
+      },
+      "be_integers": Number,
+      "be_floats": Number,
+      date: String, // should not match
+      good: Date, // should match
+      bad: Date, // should be string
+      "parseInt": Number
+    });
   
     var filtersObj = Objectify.convert($('form#filters-fixture').get(0));
   
     test('User-provided field filters are applied', function () {
-      ok(filtersObj.person.id instanceof Number, "id was converted to Number");
-      equal(filtersObj.person.authorizations, [1, 2, 3], "authorizations were converted to Numbers");
-      equal(filtersObj.person.address.zip, "68144-1234", "zip was passed through provided function");
+      equal(filtersObj.something.zip, "68144-1234", "user-defined functions are used correctly");
     });
   
-    Objectify.fields({
-      zip: Number
-    });
-
     test('Exact field matches take precedence over general matches', function () {
-      ok(filtersObj.person.address.zip === "68144-1234", "person[address][zip] overrides zip filter");
+      ok(filtersObj.id === 1, "id was converted to Number");
+      ok(filtersObj.something.id === "2", "something[id] filter overrode general id filter");
+    });
+    
+    test('parseInt is used for Numbers with no decimal point', function () {
+      same(filtersObj.these_should.be_strings, ["1", "2", "3"], "these_should[be_strings][] were combined into an array but left untouched");
+      same(filtersObj.these_should.be_integers, [4, 5, 6], "these_should[be_integers][] were parsed into an array of integers");
+      same(filtersObj.these_should.be_floats, [10.1, 10.2, 10.3], "these_should[be_floats][] were parsed into an array of floats");
+    });
+    
+    test('Number data types correctly avoid the parseInt octal bug', function () {
+      ok(filtersObj.testing.parseInt === 9, "testing[parseInt] was parsed into a base-10 integer");
+    });
+    
+    test('Date parsing', function () {
+      ok(filtersObj.date.good instanceof Date, "date was correctly converted to Date instance");
+      ok(filtersObj.date.good === new Date("Wed Aug 25 2010 21:14:47 GMT-0500 (CST)"), "date was parsed to correct Date");
+      equal(filtersObj.date.bad, "2010-8-25 9pm", "non-parsable date should be left as String");
     });
   
   });
