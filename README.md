@@ -66,7 +66,7 @@ You can provide a Javascript object constructor to convert the field:
     }
 
 If the constructor is Number, parseInt or parseFloat will be used as appropriate.
-If the constructor is Date, Date.parse will be tried if the constructor fails.
+If the constructor is Date, null will be returned if the date is invalid.
 
 You can also provide a function to do your own processing on the field:
 
