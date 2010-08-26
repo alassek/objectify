@@ -119,8 +119,9 @@
     });
     
     test('Date parsing', function () {
+      var testDate = new Date("Wed Aug 25 2010 21:14:47 GMT-0500 (CST)");
       ok(filtersObj.date.good instanceof Date, "date was correctly converted to Date instance");
-      ok(filtersObj.date.good === new Date("Wed Aug 25 2010 21:14:47 GMT-0500 (CST)"), "date was parsed to correct Date");
+      same(filtersObj.date.good, testDate, "Date matches");      
       equal(filtersObj.date.bad, "2010-8-25 9pm", "non-parsable date should be left as String");
     });
     
