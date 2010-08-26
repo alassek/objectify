@@ -3,7 +3,7 @@
   $(document).ready(function(){
     module('Objectify.convert');
 
-    var form = $('form').get(0),
+    var form = $('form#person-fixture').get(0),
         formObj = Objectify.convert(form);
     
     test('Object definitions', function() {
@@ -46,20 +46,6 @@
       );
     });
     
-    test('Multiple forms', function() {
-      same(
-        [
-          Objectify.convert($('form').get(0)),
-          Objectify.convert($('form').get(0))
-        ],
-        [
-          Object.clone(fixtureObj),
-          Object.clone(fixtureObj)
-        ],
-        "Multiple forms are processed correctly"
-      );
-    });
-    
     module('Objectify.fields');
     
     Objectify.fields({
@@ -71,10 +57,10 @@
     Objectify.fields({
       "person[address][zip]": function (zip) {
         return zip + "-1234";
-      }      
+      }
     })
     
-    formObj = Objectify.convert($('form').get(0));
+    formObj = Objectify.convert($('form#filters-fixture').get(0));
     
     test('User-provided field filters are applied', function () {
       ok(formObj.person.id instanceof Number, "id was converted to Number");

@@ -17,7 +17,7 @@
 	<h2 id="qunit-userAgent"></h2>
 	<ol id="qunit-tests"></ol>
 	<div id="qunit-fixture">
-    <form id="objectify-test">
+    <form id="person-fixture">
       <div><input type="hidden" value="put" name="_method" /></div>
       <select id="person_address_state" name="person[address][state]">
         <options value="DE">Delaware</options>
@@ -43,6 +43,22 @@
           <li><input type="hidden" id="person_authorizations_3" name="person[authorizations][]" value="3"></li>
         </ul>
       </div>
+    </form>
+    
+    <form id="filters-fixture">
+      <input type="text" name="id" value="1" />
+      <input type="text" name="something[id]" value="2" />
+      <input type="hidden" name="these_should[be_strings][]" value="1" />
+      <input type="hidden" name="these_should[be_strings][]" value="2" />
+      <input type="hidden" name="these_should[be_strings][]" value="3" />
+      <input type="hidden" name="these_should[be_integers][]" value="4" />
+      <input type="hidden" name="these_should[be_integers][]" value="5" />
+      <input type="hidden" name="these_should[be_integers][]" value="6" />
+      <input type="hidden" name="these_should[be_floats][]" value="10.1" />
+      <input type="hidden" name="these_should[be_floats][]" value="10.2" />
+      <input type="hidden" name="these_should[be_floats][]" value="10.3" />
+      <input type="text" name="date[good]" value="Wed Aug 25 2010 21:14:47 GMT-0500 (CST)" />
+      <input type="text" name="date[bad]" value="2010-8-25 9pm" />
     </form>
 	</div>
 </body>
