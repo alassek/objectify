@@ -18,30 +18,42 @@
       ok(formObj.person.authorizations, 'Authorizations object exists');
       ok(Object.isArray(formObj.person.authorizations), 'Authorizations is an array');
     });
+
+    var fixtureObj = {
+      "person": {
+        "id": "1",
+        "name": "Joe Blow",
+        "email": "joe.blow@test.com",
+        "address": {
+          "street_address": "123 Somewhere St",
+          "city": "Omaha",
+          "state": "NE",
+          "zip": "68144"
+        },
+        "authorizations": ["1", "2", "3"]
+      }
+    };
     
     test('Object structure', function() {
       same(
         formObj,
-        {
-          "person": {
-            "id": "1",
-            "name": "Joe Blow",
-            "email": "joe.blow@test.com",
-            "address": {
-              "street_address": "123 Somewhere St",
-              "city": "Omaha",
-              "state": "NE",
-              "zip": "68144"
-            },
-            "authorizations": ["1", "2", "3"]
-          }
-        },
+        fixtureObj,
         "Object structure is generated as expected"
       );
     });
-
+    
     test('Multiple forms', function() {
-      same(Objectify.convert([form, form]), [formObj, formObj], "Multiple forms are processed correctly");
+      same(
+        [
+          Objectify.convert($('form').get(0)),
+          Objectify.convert($('form').get(0))
+        ],
+        [
+          Object.clone(fixtureObj),
+          Object.clone(fixtureObj)
+        ],
+        "Multiple forms are processed correctly"
+      );
     });
   });
   
