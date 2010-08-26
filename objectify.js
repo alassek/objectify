@@ -8,8 +8,8 @@ var Objectify = (function (undefined) {
    *  - form (HTMLFormElement): Form to be parsed
   **/
   function process (form) {
-    if (!form instanceof HTMLFormElement) throw("Expected an HTMLFormElement, got " + typeof(form) + " instead.");
-    
+    if (!(form instanceof HTMLFormElement)) throw("Expected an HTMLFormElement, got " + typeof(form) + " instead.");
+
     var inputs = form.getElementsByTagName('input'),
         selects = form.getElementsByTagName('select'),
         textareas = form.getElementsByTagName('textarea'),
