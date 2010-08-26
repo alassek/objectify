@@ -123,7 +123,7 @@ var Objectify = (function (undefined) {
       var parsedDate = new Date(value);
       return isNaN(parsedDate.getTime()) ? value : parsedDate;
     } else {
-      var f = (filters instanceof Hash) ? filters.toObject() : filters;
+      var f = (filters instanceof Hash) ? filters.toObject() : Object.clone(filters);
       return filter.call(f, value);
     }
   }

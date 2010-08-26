@@ -77,6 +77,10 @@ You can also provide a function to do your own processing on the field:
       }
     });
 
+Within your processing function, `this` refers to a copy of the entire filters variable,
+so you can make your functions dependent on other filters. The filters object is cloned
+before being sent to your function, so modifications during convert will be ignored.
+
 If you have two fields with the same name that need to be treated differently,  you
 can qualify the field name. Exact matches will always trump field names:
 
