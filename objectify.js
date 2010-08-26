@@ -80,13 +80,35 @@ var Objectify = (function (undefined) {
   
   function filterParam(field) {
     var key = field[0],
-        value = field[1];
+        value = field[1],
+        namespace = key.gsub(/\[\]$/, '').gsub(/\[/, ' ').gsub(/\]/, '');
     
+    filters = new Hash(filters);
     
+    if (filters.keys().include(key)) return [key, applyFilter(filters.get(key), value)];
+    
+    var match;
+    filters.each(function (pair) {
+      if (namespace.match('\\s' + pair.key + '$')) {
+        match = [key, applyFilter(pair.value, value)];
+        throw $break;
+      }
+    });
+    
+    filters = filters.toObject();
+    return match || [key, value];
   }
   
   function applyFilter(filter, value) {
-    
+    if (filter === (0).constructor) {
+      return (value.indexOf('.') > 0) ? parseFloat(value) : parseInt(value, 10);
+    } else if (filter === Date) {
+      var parsedDate = new Date(value);
+      return isNaN(parsedDate.getTime()) ? value : parsedDate;
+    } else {
+      var f = (filters instanceof Hash) ? filters.toObject() : filters;
+      return filter.call(f, value);
+    }
   }
   
   // Public Functions
@@ -111,7 +133,8 @@ var Objectify = (function (undefined) {
     fields = fields.map(getKeyValuePairs)
                    .compact()
                    .reject(filterNames)
-                   .map(stripWhiteSpace);
+                   .map(stripWhiteSpace)
+                   .map(filterParam);
 
     fields.each(function(field) {
       normalizeParam(field[0], field[1], obj);
