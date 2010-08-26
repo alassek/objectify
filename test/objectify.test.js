@@ -100,7 +100,6 @@
   
     test('User-provided field filters are applied', function () {
       filtersObj = Objectify.convert($('form#filters-fixture').get(0));
-      
       equal(filtersObj.something.zip, "68144-1234", "user-defined functions are used correctly");
     });
   

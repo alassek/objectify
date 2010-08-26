@@ -4,35 +4,6 @@ var Objectify = (function (undefined) {
   var filters = {};
   
   /** related to: convert
-   *  process(form) -> Object
-   *  - form (HTMLFormElement): Form to be parsed
-  **/
-  function process (form) {
-    if (!(form instanceof HTMLFormElement)) throw("Expected an HTMLFormElement, got " + typeof(form) + " instead.");
-
-    var inputs = form.getElementsByTagName('input'),
-        selects = form.getElementsByTagName('select'),
-        textareas = form.getElementsByTagName('textarea'),
-        fields = [], obj = {};
-    
-    // getElementsByTagName is using a more elemental form
-    // of array that doesn't have Prototype's extensions
-    inputs = $A(inputs), selects = $A(selects), textareas = $A(textareas);
-    fields = fields.concat(inputs).concat(selects).concat(textareas);
-    
-    fields = fields.map(getKeyValuePairs)
-                   .compact()
-                   .reject(filterNames)
-                   .map(stripWhiteSpace);
-
-    fields.each(function(field) {
-      normalizeParam(field[0], field[1], obj);
-    });
-    
-    return obj;
-  }
-  
-  /** related to: process
    *  getKeyValuePairs(field) -> Array
    *  - field (Element): Form element to extract name/value from
   **/
@@ -47,7 +18,7 @@ var Objectify = (function (undefined) {
     }    
   }
   
-  /** related to: process
+  /** related to: convert
    *  stripWhiteSpace(pair)
    *  - pair (Array): Name/Value pair in Array
    *
@@ -60,7 +31,7 @@ var Objectify = (function (undefined) {
     ];
   }
   
-  /** related to: process
+  /** related to: convert
    *  filterNames(pair) -> Boolean
    *  - pair (Array): Name/Value pair in Array
    *
@@ -74,7 +45,7 @@ var Objectify = (function (undefined) {
     return nameEmpty || methodParam;
   }
 
-  /** related to: process
+  /** related to: convert
    *  normalizeParam(key, value, params) -> undefined
    *  - key (String): The parameter name to be parsed
    *  - value (String): The value to be assigned
@@ -107,19 +78,46 @@ var Objectify = (function (undefined) {
     }
   }
   
+  function filterParam(field) {
+    var key = field[0],
+        value = field[1];
+    
+    
+  }
+  
+  function applyFilter(filter, value) {
+    
+  }
+  
   // Public Functions
   
   /**
-   *  Objectify.convert(forms) -> Object | Array
-   *  - forms (HTMLFormElement | Array): Form or Array of forms to be parsed
+   *  convert(form) -> Object
+   *  - form (HTMLFormElement): Form to be parsed
   **/
-  function convert (forms) {
-    if (Object.isArray(forms)) {
-      return forms.each(function (form) {
-        return process(form);
-      });
-    }
-    return process(forms);
+  function convert (form) {
+    if (!(form instanceof HTMLFormElement)) throw("Expected an HTMLFormElement, got " + typeof(form) + " instead.");
+
+    var inputs = form.getElementsByTagName('input'),
+        selects = form.getElementsByTagName('select'),
+        textareas = form.getElementsByTagName('textarea'),
+        fields = [], obj = {};
+    
+    // getElementsByTagName is using a more elemental form
+    // of array that doesn't have Prototype's extensions
+    inputs = $A(inputs), selects = $A(selects), textareas = $A(textareas);
+    fields = fields.concat(inputs).concat(selects).concat(textareas);
+    
+    fields = fields.map(getKeyValuePairs)
+                   .compact()
+                   .reject(filterNames)
+                   .map(stripWhiteSpace);
+
+    fields.each(function(field) {
+      normalizeParam(field[0], field[1], obj);
+    });
+    
+    return obj;
   }
   
   /** related to: convert
