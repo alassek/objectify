@@ -49,27 +49,58 @@
   
     module('Objectify.fields');
   
-    Objectify.fields({
-      id: Number,
-      "something[id]": String
+    test('Objectify.fields() with no args returns the current filters', function () {
+      
+      Objectify.fields({
+        id: Number,
+        "something[id]": String
+      });
+      
+      same(
+        Objectify.fields(),
+        { id: Number, "something[id]": String },
+        "The filters passed into Objectify.fields have been stored correctly"
+      );
     });
   
-    // testing if field filters are persistent and additive
-    Objectify.fields({
-      zip: function (zip) {
+    test('field filters are persistent and additive', function () {
+      
+      function zipConverter (zip) {
         return zip + "-1234";
-      },
-      "be_integers": Number,
-      "be_floats": Number,
-      date: String, // should not match
-      good: Date, // should match
-      bad: Date, // should be string
-      "parseInt": Number
+      }
+      
+      Objectify.fields({
+        zip: zipConverter,
+        "be_integers": Number,
+        "be_floats": Number,
+        date: String, // should not match
+        good: Date, // should match
+        bad: Date, // should be string
+        "parseInt": Number
+      });
+      
+      same(
+        Objectify.fields(),
+        {
+          id: Number,
+          "something[id]": String,
+          zip: zipConverter,
+          "be_integers": Number,
+          "be_floats": Number,
+          date: String,
+          good: Date,
+          bad: Date,
+          "parseInt": Number
+        },
+        "The two Objectify.fields() objects have been combined together"
+      );
     });
   
-    var filtersObj = Objectify.convert($('form#filters-fixture').get(0));
+    var filtersObj;
   
     test('User-provided field filters are applied', function () {
+      filtersObj = Objectify.convert($('form#filters-fixture').get(0));
+      
       equal(filtersObj.something.zip, "68144-1234", "user-defined functions are used correctly");
     });
   
@@ -92,6 +123,11 @@
       ok(filtersObj.date.good instanceof Date, "date was correctly converted to Date instance");
       ok(filtersObj.date.good === new Date("Wed Aug 25 2010 21:14:47 GMT-0500 (CST)"), "date was parsed to correct Date");
       equal(filtersObj.date.bad, "2010-8-25 9pm", "non-parsable date should be left as String");
+    });
+    
+    test('Objectify.fields.clear() removes filters', function () {
+      Objectify.fields.clear();
+      same(Objectify.fields(), {}, "Fields filters are now empty");
     });
   
   });
