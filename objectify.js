@@ -1,8 +1,8 @@
 
 var Objectify = (function (undefined) {
-  
-  var filters = {};
 
+  var filters = {};
+  
   /** related to: convert
    *  process(form) -> Object
    *  - form (HTMLFormElement): Form to be parsed
@@ -107,26 +107,45 @@ var Objectify = (function (undefined) {
     }
   }
   
-  return {
-    
-    /**
-     *  Objectify.convert(forms) -> Object | Array
-     *  - forms (HTMLFormElement | Array): Form or Array of forms to be parsed
-    **/
-    convert: function (forms) {
-      if (Object.isArray(forms)) {
-        return forms.each(function (form) {
-          return process(form);
-        });
-      }
-      return process(forms);
-    },
-    
-    fields: function (options) {
-      jQuery.extend(filters, options);
-      console.log(filters);
+  // Public Functions
+  
+  /**
+   *  Objectify.convert(forms) -> Object | Array
+   *  - forms (HTMLFormElement | Array): Form or Array of forms to be parsed
+  **/
+  function convert (forms) {
+    if (Object.isArray(forms)) {
+      return forms.each(function (form) {
+        return process(form);
+      });
     }
-
+    return process(forms);
+  }
+  
+  /** related to: convert
+   *  Objectify.fields([filters]) -> Object | undefined
+   *  - filters (Object): filters to be applied to form fields during convert
+   *
+   *  If filters are provided, they will be combined with the filters object, overwriting
+   *  any duplicate entries. If no options are provided, will return the current filters object.
+  **/
+  function fields (options) {
+    if (options) Object.extend(filters, options);
+    else return filters;
+  }
+  
+  /** related to: fields, convert
+   *  Objectify.fields.clear() -> undefined
+   *
+   *  Resets the filters to an empty object.
+  **/
+  fields.clear = function () {
+    filters = {};
+  }
+  
+  return {
+    convert: convert,
+    fields:  fields
   };
   
 })();
