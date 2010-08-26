@@ -78,6 +78,14 @@ var Objectify = (function (undefined) {
     }
   }
   
+  /** related to: convert
+   *  filterParam(field) -> Array
+   *  - field (Array): key, value stored in array
+   *
+   *  First checks if there is an exact match for key in filters,
+   *  then checks for a match on the field name. Applies the given filter
+   *  if there is a match, otherwise passes through the field parameter unchanged.
+  **/
   function filterParam(field) {
     var key = field[0],
         value = field[1],
@@ -96,9 +104,18 @@ var Objectify = (function (undefined) {
     });
     
     filters = filters.toObject();
-    return match || [key, value];
+    return match || field;
   }
   
+  /** related to: filterParam
+   *  applyFilter(filter, value) -> Number | Date | Object
+   *  - filter (Function): Number, Date constructor or customer filter function
+   *  - value (String): Original field value as String
+   *
+   *  If filter is Number: first checks for decimal point, uses parseFloat if exists or else
+   *  parseInt. If filter is Date, returns Date or original string if invalid.
+   *  Otherwise calls function with context of filters object, value as first parameter.
+  **/
   function applyFilter(filter, value) {
     if (filter === (0).constructor) {
       return (value.indexOf('.') > 0) ? parseFloat(value) : parseInt(value, 10);
