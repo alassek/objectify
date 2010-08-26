@@ -100,7 +100,6 @@ version.
 
 ## API status
 
-* Objectify.fields is not yet supported
 * Adding nested objects after "[]" is not yet supported, but will be
   - If you're good with Regular Expressions, I would appreciate some help with this
 * Multi-Selects are not yet supported
