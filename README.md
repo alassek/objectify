@@ -60,10 +60,7 @@ That's it!
     
 ## Post-Processing fields
 
-If you want Objectify to process a field in a particular way, Objectify.fields gives
-you two options:
-
-You can provide a Javascript object constructor to convert the field:
+If you want Objectify to process a field in a particular way, simply pass in a function:
 
     Objectify.fields({
       'id': Number
@@ -77,10 +74,10 @@ You can provide a Javascript object constructor to convert the field:
       }
     }
 
-If the constructor is Number, parseInt or parseFloat will be used as appropriate.
-If the constructor is Date, the original value will be returned if it fails conversion.
+Number and Date are treated specially by Objectify. If the function is Number, parseInt or parseFloat 
+will be used as appropriate. If the function is Date, the original value will be returned if it fails conversion.
 
-You can also provide a function to do your own processing on the field:
+You can, of course, pass in an anonymous function as well:
 
     Objectify.fields({
       id: function(field) {

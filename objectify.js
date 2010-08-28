@@ -136,7 +136,7 @@ var Objectify = (function (undefined) {
   
   /**
    *  convert(form) -> Object
-   *  - form (HTMLFormElement): Form to be parsed
+   *  - form (Element): An object that responds to getElementsByTagName
   **/
   function convert (form) {
     if (form['getElementsByTagName'] === undefined) throw("Expected an object with getElementsByTagName, got " + typeof(form) + " instead.");
