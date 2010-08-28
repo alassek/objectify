@@ -46,6 +46,18 @@ Form fields that need to be combined into an array end in '[]'
       }
     }
     
+## Converting a form
+
+Given a form with the id 'person', you simply pass it into `Objectify.convert()`:
+
+    var form = $('person'),
+        person = Objectify.convert(form);
+
+`Objectify.convert` simply requires that the element responds to 'getElementsByTagName', so you can pass in a subset
+of a form such as a fieldset or div if you wish.
+
+That's it!
+    
 ## Post-Processing fields
 
 If you want Objectify to process a field in a particular way, Objectify.fields gives
