@@ -1,4 +1,8 @@
-
+/**
+ *  Objectify
+ *
+ *  Turns forms into complex objects of arbitrary depth by parsing the name attributes of your fields.
+**/
 var Objectify = (function (undefined) {
 
   var filters = {};
@@ -19,7 +23,7 @@ var Objectify = (function (undefined) {
   }
   
   /** related to: convert
-   *  stripWhiteSpace(pair)
+   *  stripWhiteSpace(pair) -> Array
    *  - pair (Array): Name/Value pair in Array
    *
    *  Strips whitespace from name, and value if value is String
@@ -135,7 +139,7 @@ var Objectify = (function (undefined) {
    *  - form (HTMLFormElement): Form to be parsed
   **/
   function convert (form) {
-    if (!(form instanceof HTMLFormElement)) throw("Expected an HTMLFormElement, got " + typeof(form) + " instead.");
+    if (form['getElementsByTagName'] === undefined) throw("Expected an object with getElementsByTagName, got " + typeof(form) + " instead.");
 
     var inputs = form.getElementsByTagName('input'),
         selects = form.getElementsByTagName('select'),
@@ -169,7 +173,7 @@ var Objectify = (function (undefined) {
   **/
   function fields (options) {
     if (options) Object.extend(filters, options);
-    else return filters;
+    else return Object.clone(filters);
   }
   
   /** related to: fields, convert
