@@ -93,7 +93,7 @@ var Objectify = (function (undefined) {
   function filterParam(field) {
     var key = field[0],
         value = field[1],
-        namespace = key.gsub(/\[\]$/, '').gsub(/\[/, ' ').gsub(/\]/, '');
+        namespace = key.replace(/\[\]$/, '').replace(/\[/, ' ').replace(/\]/, '');
     
     filters = new Hash(filters);
     
