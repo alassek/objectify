@@ -149,6 +149,11 @@ var Objectify = (function (undefined) {
     // getElementsByTagName is using a more elemental form
     // of array that doesn't have Prototype's extensions
     inputs = $A(inputs), selects = $A(selects), textareas = $A(textareas);
+
+    inputs = inputs.reject(function(field) {
+      return field.type == 'checkbox' && !field.checked
+    });
+    
     fields = fields.concat(inputs).concat(selects).concat(textareas);
     
     fields = fields.map(getKeyValuePairs)
