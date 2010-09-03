@@ -23,12 +23,18 @@
     test('_method parameter is ignored', function () {
       equal(personObj['_method'], undefined, "_method parameter is not added to object");
     });
+    
+    test('checkboxes are treated correctly', function() {
+      equal(personObj.person.admin, undefined, 'unchecked checkboxes are not included');
+      ok(personObj.person.manager, 'checked checkboxes are added to the object');
+    });
 
     var personFixture = {
       "person": {
         "id": "1",
         "name": "Joe Blow",
         "email": "joe.blow@test.com",
+        "manager": true,
         "address": {
           "street_address": "123 Somewhere St",
           "city": "Omaha",
