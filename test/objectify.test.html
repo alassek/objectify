@@ -37,8 +37,11 @@
       </div>
       
       <div class="authorizations">
-        <input type="checkbox" id="person_admin" name="person[admin]" />
-        <input type="checkbox" id="person_admin" name="person[manager]" checked="checked" />
+        <input type="radio" name="person[auth]" value="manager" checked="checked" />
+        <input type="radio" name="person[auth]" value="admin" />
+        <input type="checkbox" id="person_should_be_checked" name="person[should_be_checked]" checked="checked" />
+        <input type="checkbox" id="person_should_not_be_checked" name="person[should_not_be_checked]" />
+        
         <ul>
           <li><input type="hidden" id="person_authorizations_1" name="person[authorizations][]" value="1"></li>
           <li><input type="hidden" id="person_authorizations_2" name="person[authorizations][]" value="2"></li>
