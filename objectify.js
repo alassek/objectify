@@ -151,8 +151,8 @@ var Objectify = (function (undefined) {
     inputs = $A(inputs), selects = $A(selects), textareas = $A(textareas);
 
     inputs = inputs.reject(function(field) {
-      return field.type == 'checkbox' && !field.checked
-    });
+                      return ((field.type == 'checkbox' || field.type == 'radio') && !field.checked);
+                    });
     
     fields = fields.concat(inputs).concat(selects).concat(textareas);
     
