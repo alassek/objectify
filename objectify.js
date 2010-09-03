@@ -16,7 +16,9 @@ var Objectify = (function (undefined) {
       case "select-one":
         return [field.name, field.options[field.selectedIndex].value];
       case "checkbox":
-        return [field.name, field.checked];
+        return field.checked ? [field.name, field.checked] : [];
+      case "radio":
+        return field.checked ? [field.name, field.value] : [];
       default:
         return [field.name, field.value];
     }    
@@ -150,10 +152,6 @@ var Objectify = (function (undefined) {
     // of array that doesn't have Prototype's extensions
     inputs = $A(inputs), selects = $A(selects), textareas = $A(textareas);
 
-    inputs = inputs.reject(function(field) {
-                      return ((field.type == 'checkbox' || field.type == 'radio') && !field.checked);
-                    });
-    
     fields = fields.concat(inputs).concat(selects).concat(textareas);
     
     fields = fields.map(getKeyValuePairs)
