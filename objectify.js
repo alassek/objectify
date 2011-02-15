@@ -194,3 +194,15 @@ var Objectify = (function (undefined) {
   };
   
 })();
+
+(function ($, undefined) {
+  
+  if ($ == undefined) return;
+
+  $.fn.objectify = function () {
+    return this.get().inject({}, function (obj, fragment) {
+      return Object.extend(obj, Objectify.convert(fragment));
+    });
+  }
+  
+})(jQuery);
