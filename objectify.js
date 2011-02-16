@@ -3,10 +3,64 @@
  *
  *  Turns forms into complex objects of arbitrary depth by parsing the name attributes of your fields.
 **/
-var Objectify = (function (undefined) {
+var Objectify = {};
+
+(function (undefined) {
 
   var filters = {};
   
+  /**
+   *  convert(form) -> Object
+   *  - form (Element): An object that responds to getElementsByTagName
+  **/
+  this.convert = function (form) {
+    if (form['getElementsByTagName'] === undefined) throw("Expected an object with getElementsByTagName, got " + typeof(form) + " instead.");
+
+    var inputs = form.getElementsByTagName('input'),
+        selects = form.getElementsByTagName('select'),
+        textareas = form.getElementsByTagName('textarea'),
+        fields = [], obj = {};
+    
+    // getElementsByTagName is using a more elemental form
+    // of array that doesn't have Prototype's extensions
+    inputs = $A(inputs), selects = $A(selects), textareas = $A(textareas);
+
+    fields = fields.concat(inputs).concat(selects).concat(textareas);
+    
+    fields = fields.map(getKeyValuePairs)
+                   .compact()
+                   .reject(filterNames)
+                   .map(stripWhiteSpace)
+                   .map(filterParam);
+
+    fields.each(function(field) {
+      normalizeParam(field[0], field[1], obj);
+    });
+    
+    return obj;
+  }
+  
+  /** related to: convert
+   *  Objectify.fields([filters]) -> Object | undefined
+   *  - filters (Object): filters to be applied to form fields during convert
+   *
+   *  If filters are provided, they will be combined with the filters object, overwriting
+   *  any duplicate entries. If no options are provided, will return the current filters object.
+  **/
+  this.fields = function (options) {
+    if (options) Object.extend(filters, options);
+    else return Object.clone(filters);
+  }
+  
+  /** related to: fields, convert
+   *  Objectify.fields.clear() -> undefined
+   *
+   *  Resets the filters to an empty object.
+  **/
+  this.fields.clear = function () {
+    filters = {};
+  }
+
   /** related to: convert
    *  getKeyValuePairs(field) -> Array
    *  - field (Element): Form element to extract name/value from
@@ -134,67 +188,11 @@ var Objectify = (function (undefined) {
     }
   }
   
-  // Public Functions
-  
-  /**
-   *  convert(form) -> Object
-   *  - form (Element): An object that responds to getElementsByTagName
-  **/
-  function convert (form) {
-    if (form['getElementsByTagName'] === undefined) throw("Expected an object with getElementsByTagName, got " + typeof(form) + " instead.");
+}).apply(Objectify);
 
-    var inputs = form.getElementsByTagName('input'),
-        selects = form.getElementsByTagName('select'),
-        textareas = form.getElementsByTagName('textarea'),
-        fields = [], obj = {};
-    
-    // getElementsByTagName is using a more elemental form
-    // of array that doesn't have Prototype's extensions
-    inputs = $A(inputs), selects = $A(selects), textareas = $A(textareas);
-
-    fields = fields.concat(inputs).concat(selects).concat(textareas);
-    
-    fields = fields.map(getKeyValuePairs)
-                   .compact()
-                   .reject(filterNames)
-                   .map(stripWhiteSpace)
-                   .map(filterParam);
-
-    fields.each(function(field) {
-      normalizeParam(field[0], field[1], obj);
-    });
-    
-    return obj;
-  }
-  
-  /** related to: convert
-   *  Objectify.fields([filters]) -> Object | undefined
-   *  - filters (Object): filters to be applied to form fields during convert
-   *
-   *  If filters are provided, they will be combined with the filters object, overwriting
-   *  any duplicate entries. If no options are provided, will return the current filters object.
-  **/
-  function fields (options) {
-    if (options) Object.extend(filters, options);
-    else return Object.clone(filters);
-  }
-  
-  /** related to: fields, convert
-   *  Objectify.fields.clear() -> undefined
-   *
-   *  Resets the filters to an empty object.
-  **/
-  fields.clear = function () {
-    filters = {};
-  }
-  
-  return {
-    convert: convert,
-    fields:  fields
-  };
-  
-})();
-
+/*
+ *  Helper function for jQuery
+*/
 (function ($, undefined) {
   
   if ($ == undefined) return;
