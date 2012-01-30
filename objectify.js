@@ -57,19 +57,21 @@ var Objectify = (function ($) {
    *   Objectify.convert({ ... }) -> { ... }
    ***/
   self.convert = function ( selection ) {
-    var fields, obj = {};
+    var fields = [], obj = {};
 
-    if ( primitive(selection) === "Object" ) {
-      fields = [];
+    if ( (primitive(selection) === 'String') || (selection instanceof jQuery) ) {
+
+      if ( $(selection).is('form') ) fields = $(selection).serializeArray();
+      else fields = $(selection).find('input, select, textarea').serializeArray();
+
+    } else if ( primitive(selection) == 'Object' ) {
+
       for (var key in selection) {
         if ( hasOwnProperty(selection, key) ) {
           fields.push({ name: key, value: selection[key] });
         }
       }
-    } else if ( $(selection).is('form') ) {
-      fields = $(selection).serializeArray();
-    } else {
-      fields = $(selection).find('input, select, textarea').serializeArray();
+
     }
 
     $.each( fields, function ( i, field ) {
