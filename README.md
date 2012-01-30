@@ -13,38 +13,52 @@ Objectify uses the HTTP parameter convention popularized by PHP & Ruby:
 
 Nested objects are written inside square-brackets: [ ]
 
-    <input type="text" name="person[email]" value="some.dude@test.com" />
-    
-    {
-      person: {
-        email: "some.dude@test.com"
-      }
+  ```html
+  <!-- an input named like this -->
+  <input type="text" name="person[email]" value="some.dude@test.com" />
+  ```
+  
+  ```javascript
+  // would be converted to this
+  {
+    person: {
+      email: "some.dude@test.com"
     }
+  }
+  ```
 
 Objects can be nested to arbitrary depth:
 
-    <input type="text" name="person[phone_numbers][0][extension]" value="214" />
-    
-    {
-      person: {
-        phone_numbers: {
-          "0": {
-            extension: "214"
-          }
+  ```html
+  <input type="text" name="person[phone_numbers][0][extension]" value="214" />
+  ```
+  
+  ```javascript
+  {
+    person: {
+      phone_numbers: {
+        "0": {
+          extension: "214"
         }
       }
     }
+  }
+  ```
 
 Form fields that need to be combined into an array end in '[]'
 
-    <input type="text" name="person[phone_numbers][]" value="555-2178" />
-    <input type="text" name="person[phone_numbers][]" value="555-8634" />
-    
-    {
-      person: {
-        phone_numbers: ['555-2178', '555-8634']
-      }
+  ```html
+  <input type="text" name="person[phone_numbers][]" value="555-2178" />
+  <input type="text" name="person[phone_numbers][]" value="555-8634" />
+  ```
+  
+  ```javascript
+  {
+    person: {
+      phone_numbers: ['555-2178', '555-8634']
     }
+  }
+  ```
     
 ## Converting a form
 
@@ -71,6 +85,37 @@ Objectify.convert(obj)
 ```
 
 That's it!
+
+## Useful helper methods
+
+### Objectify.pack
+
+```javascript
+Objectify.pack('user', 'address', 'street_address') //=> 'user[address][street_address]'
+Objectify.pack('user', 'phone_numbers', []) //=> 'user[phone_numbers][]'
+```
+
+### Objectify.unpack
+
+```javascript
+Objectify.unpack('user[address][street_address]') //=> ['user', 'address', 'street_address']
+```
+
+### Objectify.walk
+
+```javascript
+var obj = Objectify.convert('#user_form');
+Objectify.walk(obj, ['user', 'address', 'street_address']) //=> '123 Nowhere st.'
+```
+
+### jQuery plugin
+
+With no arguments, behaves like `convert`. With arguments, behaves like `walk`.
+
+```javascript
+$('#user_form').objectify() //=> { ... }
+$('#user_form').objectify('user', 'address', 'street_address') //=> '123 Nowhere st.'
+```
 
 ## API status
 
