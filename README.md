@@ -64,8 +64,10 @@ Form fields that need to be combined into an array end in '[]'
 
 Given a form with the id 'person', you simply pass it into `Objectify.convert()` in one of two ways:
 
-    var person1 = Objectify.convert('#person'),      // jQuery selector string
-        person2 = Objectify.convert( $('#person') ); // jQuery instance works too
+```javascript
+var person1 = Objectify.convert('#person'),      // jQuery selector string
+    person2 = Objectify.convert( $('#person') ); // jQuery instance works too
+```
 
 `Objectify.convert` will also accept an object:
 
