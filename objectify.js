@@ -23,7 +23,7 @@
 /***
  * @namespace Convert form fields into nested hashes quickly and painlessly.
  ***/
-var Objectify = (function ($) {
+var Objectify = (function ($, undefined) {
   var self;
 
   /***
@@ -48,6 +48,7 @@ var Objectify = (function ($) {
         namespace    = self.unpack( key ),
         p = params, k;
 
+    // TODO: profile this against a recursive func
     do {
       k = namespace.shift();
       if ( namespace.length > 0 ) {
@@ -106,7 +107,7 @@ var Objectify = (function ($) {
     },
 
     /***
-     * Takes a packed string and returns and `Array` of parsed tokens.
+     * Takes a packed string and returns an `Array` of parsed tokens.
      *
      * @method unpack(<string>)
      * @returns {Array} tokens
@@ -159,7 +160,7 @@ var Objectify = (function ($) {
      * @method walk(<obj>, <namespace>)
      * @param {Object} <obj> The nested object
      * @param {Array} <namespace> The chain of keys to walk down
-     * @extra If `walk` excounters an `undefined` value it will immediately break and return undefined.
+     * @extra If `walk` excounters an `undefined` value it will immediately break and return `undefined`.
      * @example
      *
      *   var obj = { user: { address: { street_address: '123 Nowhere st.' } } };
