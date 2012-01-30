@@ -1,206 +1,169 @@
-/**
- *  Objectify
- *
- *  Turns forms into complex objects of arbitrary depth by parsing the name attributes of your fields.
-**/
-var Objectify = {};
+/***
+ * @namespace Convert form fields into nested hashes quickly and painlessly.
+ ***/
+var Objectify = (function ($) {
 
-(function (undefined) {
+  /***
+   * This object will hold all of the public methods.
+   ***/
+  var self = {};
 
-  var filters = {};
-  
-  /**
-   *  convert(form) -> Object
-   *  - form (Element): An object that responds to getElementsByTagName
-  **/
-  this.convert = function (form) {
-    if (form['getElementsByTagName'] === undefined) throw("Expected an object with getElementsByTagName, got " + typeof(form) + " instead.");
+  /***
+   * Because javascript type-checking is something special.
+   ***/
+  function primitive ( obj ) {
+    return Object.prototype.toString.call(obj).match(/\[object (\w+)\]/)[1];
+  }
 
-    var inputs = form.getElementsByTagName('input'),
-        selects = form.getElementsByTagName('select'),
-        textareas = form.getElementsByTagName('textarea'),
-        fields = [], obj = {};
-    
-    // getElementsByTagName is using a more elemental form
-    // of array that doesn't have Prototype's extensions
-    inputs = $A(inputs), selects = $A(selects), textareas = $A(textareas);
+  /***
+   * Because `hasOwnProperty` can be overwritten.
+   ***/
+  function hasOwnProperty ( obj, key ) {
+    return Object.prototype.hasOwnProperty.call(obj, key);
+  }
 
-    fields = fields.concat(inputs).concat(selects).concat(textareas);
-    
-    fields = fields.map(getKeyValuePairs)
-                   .compact()
-                   .reject(filterNames)
-                   .map(stripWhiteSpace)
-                   .map(filterParam);
+  /***
+   * This is the method that does the heavy lifting.
+   *
+   * @method convert(<selection>)
+   * @param selection can be a jQuery selector string, a jQuery instance, or a plain object.
+   * @returns {Object}
+   * @example
+   *
+   *   Objectify.convert('form') -> { ... }
+   *   Objectify.convert( $('form') ) -> { ... }
+   *   Objectify.convert({ ... }) -> { ... }
+   ***/
+  self.convert = function ( selection ) {
+    var fields, obj = {};
 
-    fields.each(function(field) {
-      normalizeParam(field[0], field[1], obj);
+    if ( primitive(selection) === "Object" ) {
+      fields = [];
+      for (var key in selection) {
+        if ( hasOwnProperty(selection, key) ) {
+          fields.push({ name: key, value: selection[key] });
+        }
+      }
+    } else if ( $(selection).is('form') ) {
+      fields = $(selection).serializeArray();
+    } else {
+      fields = $(selection).find('input, select, textarea').serializeArray();
+    }
+
+    $.each( fields, function ( i, field ) {
+      normalize( field.name, field.value, obj );
     });
-    
+
     return obj;
   }
-  
-  /** related to: convert
-   *  Objectify.fields([filters]) -> Object | undefined
-   *  - filters (Object): filters to be applied to form fields during convert
+
+  /***
+   * jQuery plugin to convert the selected nodes. Parameters are treated like %walk% params.
    *
-   *  If filters are provided, they will be combined with the filters object, overwriting
-   *  any duplicate entries. If no options are provided, will return the current filters object.
-  **/
-  this.fields = function (options) {
-    if (options) Object.extend(filters, options);
-    else return Object.clone(filters);
-  }
-  
-  /** related to: fields, convert
-   *  Objectify.fields.clear() -> undefined
+   * @example
    *
-   *  Resets the filters to an empty object.
-  **/
-  this.fields.clear = function () {
-    filters = {};
+   *   $('form').objectify() -> { ... }
+   *   $('form').objectify('user', 'address', 'street_address') -> '123 Nowhere st.'
+   ***/
+  $.fn.objectify = function () {
+    return self.walk( self.convert(this), Array.prototype.slice.call(arguments) );
   }
 
-  /** related to: convert
-   *  getKeyValuePairs(field) -> Array
-   *  - field (Element): Form element to extract name/value from
-  **/
-  function getKeyValuePairs (field) {
-    switch (field.type) {
-      case "select-one":
-        return [field.name, field.options[field.selectedIndex].value];
-      case "checkbox":
-        return field.checked ? [field.name, field.checked] : [];
-      case "radio":
-        return field.checked ? [field.name, field.value] : [];
-      default:
-        return [field.name, field.value];
-    }    
-  }
-  
-  /** related to: convert
-   *  stripWhiteSpace(pair) -> Array
-   *  - pair (Array): Name/Value pair in Array
+  /***
+   * Takes a packed string and returns and `Array` of parsed tokens.
    *
-   *  Strips whitespace from name, and value if value is String
-  **/
-  function stripWhiteSpace (pair) {
-    return [
-      pair[0].toString().strip(),
-      typeof pair[1] === "string" ? pair[1].toString().strip() : pair[1]
-    ];
-  }
-  
-  /** related to: convert
-   *  filterNames(pair) -> Boolean
-   *  - pair (Array): Name/Value pair in Array
+   * @method unpack(<string>)
+   * @returns {Array} tokens
+   * @example
    *
-   *  Returns true if name/value is empty
-   *  Also ignores "_method" parameter
-  **/
-  function filterNames (pair) {
-    if (pair === undefined || pair.compact().length === 0) return true;
-    var nameEmpty = (pair.length > 0 && pair[0].length === 0),
-        methodParam = /^_method$/.test(pair[0]);
-    return nameEmpty || methodParam;
+   *   Objectify.unpack('user[address][street_address]') -> ['user', 'address', 'street_address']
+   ***/
+  self.unpack = function ( string ) {
+    var pattern = /^[\[\]]*([^\[\]]+)\]*/,
+        namespace = [], s;
+
+    while ( s = string.match(pattern) ) {
+      namespace.push( s[1] );
+      string = string.replace( pattern, '' );
+    }
+
+    return namespace;
   }
 
-  /** related to: convert
-   *  normalizeParam(key, value, params) -> undefined
-   *  - key (String): The parameter name to be parsed
-   *  - value (String): The value to be assigned
-   *  - params (Object): The data object being constructed
+  /***
+   * Takes one or more arguments and turns them into a single packed string. Pass in an empty `[]` for an array value.
    *
-   *  Takes a single key/value pair and assigns the value to the
-   *  correct object according to the key's value.
-  **/
-  function normalizeParam(key, value, params) {
-    var namespace = [],
-        isArrayValue = key.match(/\[\]$/);
+   * @method pack(<arg1>, <arg2>, ...)
+   * @returns {String}
+   * @example
+   *
+   *   Objectify.pack('user', 'address', 'street_address') -> 'user[address][street_address]'
+   *   Objectify.pack('user', 'phone_numbers', []) -> 'user[phone_numbers][]'
+   ***/
+  self.pack = function () {
+    if ( arguments.length === 0 ) return;
 
-    key.scan(/^[\[\]]*([^\[\]]+)\]*/, function(s){ namespace.push(s[1]); });
+    if ( arguments.length === 1 )
+    if ( $.isArray(arguments[0]) ) return self.pack.apply(null, arguments[0]);
 
-    var k, p = params;
+    var args      = Array.prototype.slice.call( arguments, 1 ),
+        fieldName = arguments[ 0 ];
+
+    $.each( args, function ( i, name ) {
+      if ( $.isArray(name) ) fieldName += '[]';
+      else fieldName += '[' + name + ']';
+    });
+
+    return fieldName;
+  }
+
+  /***
+   * Walk into a nested object, to arbitrary depth, and pull out the value
+   *
+   * @method walk(<obj>, <namespace>)
+   * @param {Object} <obj> The nested object
+   * @param {Array} <namespace> The chain of keys to walk down
+   * @extra If %walk% excounters an `undefined` value it will immediately break and return undefined.
+   * @example
+   *
+   *   var obj = { user: { address: { street_address: '123 Nowhere st.' } } };
+   *   Objectify.walk(obj, ['user', 'address', 'street_address']) -> '123 Nowhere st.'
+   *   Objectify.walk(obj, ['user', 'address', 'foo', 'bar']) -> undefined
+   ***/
+  self.walk = function ( obj, namespace ) {
+    while ( namespace.length > 0 ) {
+      if ( obj === undefined ) break;
+      obj = obj[ namespace.shift() ];
+    }
+    return obj;
+  }
+
+  /***
+   * The secret sauce, as it were. This is what inserts a value into the correct nesting.
+   ***/
+  function normalize ( key, value, params ) {
+    var isArrayValue = key.match( /\[\]$/ ),
+        namespace    = self.unpack( key ),
+        p = params, k;
+
     do {
       k = namespace.shift();
-      if (namespace.length > 0) {
-        p[k] = p[k] || {};
-        p = p[k];
+      if ( namespace.length > 0 ) {
+        p[ k ] || (p[ k ] = {});
+        p = p[ k ];
       }
-    } while (namespace.length > 0);
-    
-    if (isArrayValue) {
-      p[k] = p[k] || [];
-      if (!Object.isArray(p[k])) throw("Expected array, got " + typeof(p[k]) + " instead.");
-      p[k].push(value);
-    } else {
-      p[k] = value;
-    }
-  }
-  
-  /** related to: convert
-   *  filterParam(field) -> Array
-   *  - field (Array): key, value stored in array
-   *
-   *  First checks if there is an exact match for key in filters,
-   *  then checks for a match on the field name. Applies the given filter
-   *  if there is a match, otherwise passes through the field parameter unchanged.
-  **/
-  function filterParam(field) {
-    var key = field[0],
-        value = field[1],
-        namespace = key.replace(/\[\]$/, '').replace(/\[/, ' ').replace(/\]/, '');
-    
-    filters = new Hash(filters);
-    
-    if (filters.keys().include(key)) return [key, applyFilter(filters.get(key), value)];
-    
-    var match;
-    filters.each(function (pair) {
-      if (namespace.match('\\s' + pair.key + '$')) {
-        match = [key, applyFilter(pair.value, value)];
-        throw $break;
-      }
-    });
-    
-    filters = filters.toObject();
-    return match || field;
-  }
-  
-  /** related to: filterParam
-   *  applyFilter(filter, value) -> Number | Date | Object
-   *  - filter (Function): Number, Date constructor or customer filter function
-   *  - value (String): Original field value as String
-   *
-   *  If filter is Number: first checks for decimal point, uses parseFloat if exists or else
-   *  parseInt. If filter is Date, returns Date or original string if invalid.
-   *  Otherwise calls function with context of filters object, value as first parameter.
-  **/
-  function applyFilter(filter, value) {
-    if (filter === (0).constructor) {
-      return (value.indexOf('.') > 0) ? parseFloat(value) : parseInt(value, 10);
-    } else if (filter === Date) {
-      var parsedDate = new Date(value);
-      return isNaN(parsedDate.getTime()) ? value : parsedDate;
-    } else {
-      var f = (filters instanceof Hash) ? filters.toObject() : Object.clone(filters);
-      return filter.call(f, value);
-    }
-  }
-  
-}).apply(Objectify);
+    } while ( namespace.length > 0 );
 
-/*
- *  Helper function for jQuery
-*/
-(function ($, undefined) {
-  
-  if ($ == undefined) return;
+    if ( isArrayValue ) {
+      p[ k ] || (p[ k ] = []);
+      if ( !p[ k ].push ) throw("Expected array, got " + typeof(p[k]) + " instead.");
+      p[ k ].push( value );
+    } else {
+      p[ k ] = value;
+    }
 
-  $.fn.objectify = function () {
-    return this.get().inject({}, function (obj, fragment) {
-      return Object.extend(obj, Objectify.convert(fragment));
-    });
+    return params;
   }
-  
+
+  return self;
 })(jQuery);
