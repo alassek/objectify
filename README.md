@@ -1,9 +1,13 @@
 # Objectify
 
-Objectify converts forms to complex objects using a name-attribute convention.
+Objectify converts forms to complex objects using the [PHP/Ruby name-attribute convention][so].
 The reason for this is to decouple the value of a form serialization from its
-presentation to a user. Computers and People think about data in very different
-ways, and it simply doesn't make sense to make one dependent on the other.
+presentation to a user. Getting data from your forms should _not_ be tightly-coupled to your
+markup.
+
+For more information about this parameter format, see [guides.rubyonrails.org][params].
+  [so]: http://stackoverflow.com/questions/7578269/where-did-this-ruby-parameter-convention-come-from
+  [params]: http://guides.rubyonrails.org/form_helpers.html#understanding-parameter-naming-conventions
 
 Objectify requires jQuery, although it is not a jQuery plugin per se.
 
