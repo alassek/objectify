@@ -68,12 +68,24 @@ var Objectify = (function ($, undefined) {
     return params;
   }
 
+  function denormalize ( obj, prefix, result ) {
+    for ( var i = 0, keys = Object.keys(obj); i < keys.length; i++ ) {
+      var key = keys[i], value = obj[key], 
+          baseName = prefix ? self.pack(prefix, key) : key;
+
+      if ( primitive(value) === 'Object' ) denormalize( value, baseName, result );
+      else result[ baseName ] = value;
+    }
+
+    return result;
+  }
+
   return self = {
     /***
      * This is the method that does the heavy lifting.
      *
      * @method convert(<selection>)
-     * @param selection can be a jQuery selector string, a jQuery instance, or a plain object.
+     * @param <selection> can be a jQuery selector string, a jQuery instance, or a plain object.
      * @returns {Object}
      * @example
      *
@@ -104,6 +116,20 @@ var Objectify = (function ($, undefined) {
       });
 
       return obj;
+    },
+
+    /**
+     * Takes a normalized object such that `convert` would give you, and turns it into a flat object.
+     *
+     * @method denormalize(<obj>)
+     * @returns Object
+     * @extra This would be especially useful for Ajax data, or data-binding.
+     * @example
+     *
+     *   Objectify.denormalize({ foo: { bar: 'baz' } }) -> { 'foo[bar]': 'baz' }
+     **/
+    'denormalize': function ( obj ) {
+      return denormalize( obj, null, {} );
     },
 
     /***

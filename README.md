@@ -107,6 +107,13 @@ Objectify.pack('user', 'phone_numbers', []) //=> 'user[phone_numbers][]'
 Objectify.unpack('user[address][street_address]') //=> ['user', 'address', 'street_address']
 ```
 
+### Objectify.denormalize
+
+```javascript
+var obj = { foo: { bar: 'baz' } };
+Objectify.denormalize(obj) //=> { 'foo[bar]': 'baz' }
+```
+
 ### Objectify.walk
 
 ```javascript
