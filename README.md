@@ -118,7 +118,7 @@ Objectify.denormalize(obj) //=> { 'foo[bar]': 'baz' }
 
 ```javascript
 var obj = Objectify.convert('#user_form');
-Objectify.walk(obj, ['user', 'address', 'street_address']) //=> '123 Nowhere st.'
+Objectify.walk(obj, 'user', 'address', 'street_address') //=> '123 Nowhere st.'
 ```
 
 ### jQuery plugin

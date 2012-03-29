@@ -183,21 +183,30 @@ var Objectify = (function ($, undefined) {
     /***
      * Walk into a nested object, to arbitrary depth, and pull out the value
      *
-     * @method walk(<obj>, <namespace>)
+     * @method walk(<obj>, [namespace...])
      * @param {Object} <obj> The nested object
-     * @param {Array} <namespace> The chain of keys to walk down
+     * @param <namespace> The chain of keys to walk down. Can be arguments or a single array.
      * @extra If `walk` excounters an `undefined` value it will immediately break and return `undefined`.
      * @example
      *
      *   var obj = { user: { address: { street_address: '123 Nowhere st.' } } };
+     *   Objectify.walk(obj, 'user', 'address', 'street_address') -> '123 Nowhere st.'
+     *   Objectify.walk(obj, 'user', 'address', 'foo', 'bar') -> undefined
+     *
+     *   // also supports passing the namespace as an array
      *   Objectify.walk(obj, ['user', 'address', 'street_address']) -> '123 Nowhere st.'
-     *   Objectify.walk(obj, ['user', 'address', 'foo', 'bar']) -> undefined
      ***/
-    'walk': function ( obj, namespace ) {
+    'walk': function ( obj ) {
+      var namespace = Array.prototype.slice.call(arguments, 1);
+      if ( primitive(namespace[0]) === 'Array' ) {
+        namespace = namespace[0];
+      }
+
       while ( namespace.length > 0 ) {
         if ( obj === undefined ) break;
         obj = obj[ namespace.shift() ];
       }
+
       return obj;
     }
   };
