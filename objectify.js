@@ -156,7 +156,7 @@ var Objectify = (function ($, undefined) {
     /***
      * Takes one or more arguments and turns them into a single packed string. Pass in an empty `[]` for an array value.
      *
-     * @method pack(<arg1>, <arg2>, ...)
+     * @method pack(<arg1>, [arg2-n...])
      * @returns {String}
      * @example
      *
@@ -223,5 +223,36 @@ var Objectify = (function ($, undefined) {
    ***/
   $.fn.objectify = function () {
     return Objectify.walk( Objectify.convert(this), Array.prototype.slice.call(arguments) );
-  }  
+  }
 })(jQuery);
+
+/***
+ * Polyfill for older browsers that don't support JS 1.8.5
+ *
+ * @see https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object/keys
+ ***/
+if ( !Object.keys ) {
+  Object.keys = (function () {
+    var hasOwnProperty = Object.prototype.hasOwnProperty,
+        hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
+        dontEnums = 'toString toLocaleString valueOf hasOwnProperty isPrototypeOf propertyIsEnumerable constructor'.split(/\s+/);
+
+    return function ( obj ) {
+      if ( typeof obj !== 'object' && typeof obj !== 'function' || obj === null) throw new TypeError('Object.keys called on non-object');
+
+      var result = [];
+
+      for ( var prop in obj ) {
+        if ( hasOwnProperty.call(obj, prop) ) result.push( prop );
+      }
+
+      if ( hasDontEnumBug ) {
+        for ( var i = 0; i < dontEnums.length; i++ ) {
+          if ( hasOwnProperty.call(obj, dontEnums[i]) ) result.push( dontEnums[i] );
+        }
+      }
+
+      return result;
+    }
+  })()
+}
