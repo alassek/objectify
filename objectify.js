@@ -74,6 +74,7 @@ var Objectify = (function ($, undefined) {
           baseName = prefix ? self.pack(prefix, key) : key;
 
       if ( primitive(value) === 'Object' ) denormalize( value, baseName, result );
+      else if ( primitive(value) === 'Array' ) result[ baseName + '[]' ] = value;
       else result[ baseName ] = value;
     }
 
