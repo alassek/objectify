@@ -1,16 +1,16 @@
 /*!
  * Copyright (c) 2012 Lyconic, LLC.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -68,7 +68,7 @@ var Objectify = (function ($, undefined) {
 
   function denormalize ( obj, prefix, result ) {
     for ( var i = 0, keys = Object.keys(obj); i < keys.length; i++ ) {
-      var key = keys[i], value = obj[key], 
+      var key = keys[i], value = obj[key],
           baseName = prefix ? self.pack(prefix, key) : key;
 
       if ( primitive(value) === 'Object' ) denormalize( value, baseName, result );
@@ -77,6 +77,14 @@ var Objectify = (function ($, undefined) {
     }
 
     return result;
+  }
+
+  function flatten ( array ) {
+    var flat = [];
+    for (var i = 0, l = array.length; i < l; i++){
+      flat = flat.concat(/^(array|collection|arguments|object)$/i.test(primitive(array[i])) ? flatten(array[i]) : array[i]);
+    }
+    return flat;
   }
 
   return self = {
@@ -198,7 +206,7 @@ var Objectify = (function ($, undefined) {
     'walk': function ( obj ) {
       var namespace = Array.prototype.slice.call(arguments, 1);
       if ( primitive(namespace[0]) === 'Array' ) {
-        namespace = namespace[0];
+        namespace = flatten(namespace);
       }
 
       while ( namespace.length > 0 ) {
