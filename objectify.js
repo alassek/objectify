@@ -49,17 +49,15 @@ var Objectify = (function ($, undefined) {
         p = params, k;
 
     // TODO: profile this against a recursive func
-    do {
+    while ( true ) {
       k = namespace.shift();
-      if ( namespace.length > 0 ) {
-        p[ k ] || (p[ k ] = {});
-        p = p[ k ];
-      }
-    } while ( namespace.length > 0 );
+      if ( namespace.length === 0 ) break;
+      p[ k ] || ( p[ k ] = {} );
+      p = p[ k ];
+    }
 
     if ( isArrayValue ) {
-      p[ k ] || (p[ k ] = []);
-      if ( !p[ k ].push ) throw("Expected array, got " + typeof(p[k]) + " instead.");
+      if ( primitive(p[k]) !== 'Array' ) p[ k ] = [];
       p[ k ].push( value );
     } else {
       p[ k ] = value;
