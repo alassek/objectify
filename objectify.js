@@ -108,6 +108,10 @@ var Objectify = (function ($, undefined) {
         if ( $(selection).is('form') ) fields = $(selection).serializeArray();
         else fields = $(selection).find('input, select, textarea').serializeArray();
 
+        $(selection).find(':file').each(function (i, file) {
+          fields.push({ name: file.name, value: file.value.replace(/C:\\fakepath\\/i, '') });
+        });
+
       } else if ( primitive(selection) == 'Object' ) {
 
         for (var key in selection) {
