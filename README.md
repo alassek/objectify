@@ -21,7 +21,7 @@ Nested objects are written inside square-brackets: [ ]
   <!-- an input named like this -->
   <input type="text" name="person[email]" value="some.dude@test.com" />
   ```
-  
+
   ```javascript
   // would be converted to this
   {
@@ -36,7 +36,7 @@ Objects can be nested to arbitrary depth:
   ```html
   <input type="text" name="person[phone_numbers][0][extension]" value="214" />
   ```
-  
+
   ```javascript
   {
     person: {
@@ -55,7 +55,7 @@ Form fields that need to be combined into an array end in '[]'
   <input type="text" name="person[phone_numbers][]" value="555-2178" />
   <input type="text" name="person[phone_numbers][]" value="555-8634" />
   ```
-  
+
   ```javascript
   {
     person: {
@@ -63,31 +63,15 @@ Form fields that need to be combined into an array end in '[]'
     }
   }
   ```
-    
+
 ## Converting a form
 
 Given a form with the id 'person', you simply pass it into `Objectify.convert()` in one of two ways:
 
 ```javascript
 var person1 = Objectify.convert('#person'),      // jQuery selector string
-    person2 = Objectify.convert( $('#person') ); // jQuery instance works too
-```
-
-`Objectify.convert` will also accept an object:
-
-```javascript
-var obj = {
-  'person[address][street_address]': '123 Nowhere st.'
-};
-
-Objectify.convert(obj)
-//{
-//  person: {
-//    address: {
-//      street_address: '123 Nowhere st.'
-//    }
-//  }
-//}
+    person2 = Objectify.convert( $('#person') ), // jQuery instance works too
+    person3 = $('#person').objectify();          // jQuery prototype method
 ```
 
 That's it!
@@ -107,11 +91,23 @@ Objectify.pack('user', 'phone_numbers', []) //=> 'user[phone_numbers][]'
 Objectify.unpack('user[address][street_address]') //=> ['user', 'address', 'street_address']
 ```
 
+### Objectify.normalize
+
+```javascript
+Objectify.normalize({ 'person[address][street_address]': '123 Nowhere st.' })
+//{
+//  person: {
+//    address: {
+//      street_address: '123 Nowhere st.'
+//    }
+//  }
+//}
+```
+
 ### Objectify.denormalize
 
 ```javascript
-var obj = { foo: { bar: 'baz' } };
-Objectify.denormalize(obj) //=> { 'foo[bar]': 'baz' }
+Objectify.denormalize({ foo: { bar: 'baz' } }) //=> { 'foo[bar]': 'baz' }
 ```
 
 ### Objectify.walk
@@ -126,12 +122,10 @@ Objectify.walk(obj, 'user', 'address', 'street_address') //=> '123 Nowhere st.'
 With no arguments, behaves like `convert`. With arguments, behaves like `walk`.
 
 ```javascript
-$('#user_form').objectify() //=> { ... }
+$('#user_form').objectify() //=> { user: { address: { street_address: '123 Nowhere st.' } } }
 $('#user_form').objectify('user', 'address', 'street_address') //=> '123 Nowhere st.'
 ```
 
 ## API status
 
-* Adding nested objects after "[]" is not yet supported, I'm not sure if this is actually necessary.
-  
-This is a work in progress, and anything currently in the documentation may change.
+The Objectify API has been stable for some time now, and I have been using it in production successfully. I don't foresee any major changes.

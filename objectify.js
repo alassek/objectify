@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2012 Lyconic, LLC.
+ * Copyright (c) 2015 Lyconic, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,10 +43,10 @@ var Objectify = (function ($, undefined) {
   /***
    * The secret sauce, as it were. This is what inserts a value into the correct nesting.
    ***/
-  function normalize ( key, value, params ) {
+  function normalize ( key, value ) {
     var isArrayValue = key.match( /\[\]$/ ),
         namespace    = self.unpack( key ),
-        p = params, k;
+        p = this, k;
 
     // TODO: profile this against a recursive func
     while ( true ) {
@@ -63,7 +63,7 @@ var Objectify = (function ($, undefined) {
       p[ k ] = value;
     }
 
-    return params;
+    return this;
   }
 
   function denormalize ( obj, prefix, result ) {
@@ -92,7 +92,7 @@ var Objectify = (function ($, undefined) {
      * This is the method that does the heavy lifting.
      *
      * @method convert(<selection>)
-     * @param <selection> can be a jQuery selector string, a jQuery instance, or a plain object.
+     * @param <selection> can be a jQuery selector string, a jQuery instance, or a plain object (deprecated).
      * @returns {Object}
      * @example
      *
@@ -114,19 +114,30 @@ var Objectify = (function ($, undefined) {
 
       } else if ( primitive(selection) == 'Object' ) {
 
-        for (var key in selection) {
-          if ( hasOwnProperty(selection, key) ) {
-            fields.push({ name: key, value: selection[key] });
-          }
+        if ( console && console.warn ) {
+          console.warn("Objectify.convert: passing an object is deprecated. Please use Objectify.normalize instead.");
         }
+
+        Object.keys(selection, function (key) { fields.push({ name: key, value: selection[key] }) });
 
       }
 
       $.each( fields, function ( i, field ) {
-        normalize( field.name, field.value, obj );
+        normalize.call( obj, field.name, field.value );
       });
 
       return obj;
+    },
+
+    /***
+     * Converts a flat key-value object to a nested object.
+     ***/
+    'normalize': function ( obj ) {
+      var newObj = {};
+
+      Object.keys(obj, function (key) { normalize.call(newObj, key, obj[key]) });
+
+      return newObj;
     },
 
     /**
